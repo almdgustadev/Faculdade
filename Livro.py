@@ -206,22 +206,24 @@ class GestaoBiblioteca:
             print("OPÇÃO INVÁLIDA. TENTE NOVAMENTE!")
 
     def _buscarPorTituloBinaria(self, titulo):
-        livro = self._buscarTituloBinaria(self.raizTitulo, titulo)
-        if livro:
-            print(livro)
+        resultados = []
+        self._buscarTituloBinaria(self.raizTitulo, titulo, resultados)
+        if resultados:
+            for livro in resultados:
+                print(livro)
         else:
-            print("Nenhum livro encontrado com este título!")
+            print("NENHUM LIVRO ENCONTRADO COM ESTE TÍTULO!")
 
-    def _buscarTituloBinaria(self, no, titulo):
+    def _buscarTituloBinaria(self, no, titulo, resultados):
         if no is None:
             return None
 
         if titulo.lower() == no.livro.titulo.lower():
-            return no.livro
-        elif titulo.lower() < no.livro.titulo.lower():
-            return self._buscarTituloBinaria(no.esquerda, titulo)
-        else:
-            return self._buscarTituloBinaria(no.direita, titulo)
+            resultados.append(no.livro)
+        if titulo.lower() < no.livro.titulo.lower():
+            self._buscarTituloBinaria(no.esquerda, titulo, resultados)
+        if titulo.lower() >= no.livro.titulo.lower():
+            self._buscarTituloBinaria(no.direita, titulo, resultados)
 
     def _buscarPorTituloSequencial(self, titulo):
         resultados = []
@@ -242,22 +244,24 @@ class GestaoBiblioteca:
         self._buscarTituloSequencial(no.direita, titulo, resultados)
 
     def _buscarPorAutorBinaria(self, autor):
-        livro = self._buscarAutorBinaria(self.raizAutor, autor)
-        if livro:
-            print(livro)
+        resultados = []
+        self._buscarAutorBinaria(self.raizAutor, autor, resultados)
+        if resultados:
+            for livro in resultados:
+                print(livro)
         else:
             print("Nenhum livro encontrado com este autor!")
 
-    def _buscarAutorBinaria(self, no, autor):
+    def _buscarAutorBinaria(self, no, autor,resultados):
         if no is None:
             return None
-        if autor.lower() < no.livro.autor.lower():
-            return self._buscarAutorBinaria(no.esquerda, autor)
-        elif autor.lower() > no.livro.autor.lower():
-            return self._buscarAutorBinaria(no.direita, autor)
-        else:
-            return no.livro
-
+        if autor.lower() == no.livro.autor.lower():
+            resultados.append(no.livro)
+        if autor.lower() <= no.livro.autor.lower():
+            self._buscarAutorBinaria(no.esquerda, autor, resultados)
+        if autor.lower() >= no.livro.autor.lower():
+            self._buscarAutorBinaria(no.direita, autor, resultados)
+    
     def _buscarPorAutorSequencial(self, autor):
         resultados = []
         self._buscarAutorSequencial(self.raizAutor, autor, resultados)
@@ -278,22 +282,24 @@ class GestaoBiblioteca:
         self._buscarAutorSequencial(no.direita, autor, resultados)
 
     def _buscarPorCategoriaBinaria(self, categoria):
-        livro = self._buscarCategoriaBinaria(self.raizCategoria, categoria)
-        if livro:
-            print(livro)
+        resultados = []
+        self._buscarCategoriaBinaria(self.raizCategoria, categoria, resultados)
+        if resultados:
+            for livro in resultados:       
+                print(livro)
         else:
             print("Nenhum livro encontrado com esta categoria!")
 
-    def _buscarCategoriaBinaria(self, no, categoria):
+    def _buscarCategoriaBinaria(self, no, categoria, resultados):
         if no is None:
             return None
 
-        if categoria.lower() < no.livro.categoria.lower():
-            return self._buscarCategoriaBinaria(no.esquerda, categoria)
-        elif categoria.lower() > no.livro.categoria.lower():
-            return self._buscarCategoriaBinaria(no.direita, categoria)
-        else:
-            return no.livro
+        if categoria.lower() == no.livro.categoria.lower():
+            resultados.append(no.livro)
+        if categoria.lower() <= no.livro.categoria.lower():
+            self._buscarCategoriaBinaria(no.esquerda, categoria, resultados)
+        if categoria.lower() >= no.livro.categoria.lower():
+            self._buscarCategoriaBinaria(no.direita, categoria, resultados)
 
     def _buscarPorCategoriaSequencial(self, categoria):
         resultados = []
