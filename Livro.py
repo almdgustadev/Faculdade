@@ -8,6 +8,7 @@ class Livro:
         self.categoria = categoria
         self.isbn = isbn
         self.emprestado = False
+        self.dataCadastro = datetime.now()
 
 
     def __str__(self):
@@ -26,6 +27,7 @@ class Emprestimo:
         self.livro = livro
         self.dataDev = dataDev
         self.dataEmp = dataEmp
+        self.dataDevReal = None
 
 class Usuario:
     def __init__(self, nome):
@@ -44,9 +46,9 @@ class GestaoBiblioteca:
         self.raizTitulo = None
         self.raizAutor = None
         self.raizCategoria = None
-        self.isbns = set()
-        self.usuarios = {}
-        self.registro = []
+        self.isbns = set() #Set para garantir unicidade dos ISBN de cada livro
+        self.usuarios = {} #DICIONÁRIO QUE SALVA OS USUÁRIOS
+        self.registro = [] #Lista que armazena o registro de emprestimo e devolução
 
     def _altura(self, no):
         if not no:
@@ -348,7 +350,7 @@ class GestaoBiblioteca:
         else:
             print("Nenhum livro encontrado com os critérios especificados.")
 
-    def EmprestarLivro(self, nomeUsuario, isbn):
+    def emprestarLivro(self, nomeUsuario, isbn):
         usuario = self.usuarios.get(nomeUsuario)
         if not usuario:
             print("Este usuário não foi encotrado!")
@@ -381,6 +383,7 @@ class GestaoBiblioteca:
         emprestimo = usuario.desfazerEmprestimo()
         if emprestimo:
             emprestimo.livro.emprestado = False
+            emprestimo.dataDevReal = datetime.now()
             print(f"Livro {emprestimo.livro.titulo} devolvido com sucesso.")
             self.registro.append(emprestimo)
         else:
@@ -398,7 +401,7 @@ class GestaoBiblioteca:
                 nomeUsuario = input("Digite o nome do usuário: ")
                 self.listarLivrosDisponiveis()
                 isbn = input("Digite o ISBN do livro que deseja emprestar: ")
-                self.EmprestarLivro(nomeUsuario, isbn)
+                self.emprestarLivro(nomeUsuario, isbn)
             elif opcao == '2':
                 nomeUsuario = input("Digite o nome do usuário: ")
                 self.devolverLivro(nomeUsuario)
@@ -408,21 +411,17 @@ class GestaoBiblioteca:
                 print("Opção inválida! Tente novamente.")
 
     def gerarRelatorio(self):
-        print("--RELATÓRIO DE EMPRÉSTIMOS E DEVOLUÇÕES DOS ÚLTIMOS 7 DIAS--")
-        if not self.registro:
-            print("NENHUMA OPERAÇÃO REALIZADA!")
-            return
-
-        dataAtual = datetime.now()
-        dataInicio = dataAtual - timedelta(days=7)
-        realizada = False
-        for registro in self.registro:
-            if registro.dataEmp >= dataInicio:
-                print(f"LIVRO: {registro.livro.titulo} | EMPRESTADO EM: {registro.dataEmp.strftime('%d/%m/%Y')} | DEVOLUÇÃO PREVISTA/FEITA: {registro.dataDev.strftime('%d/%m/%Y')}")
-                realizada = True
-
-        if not realizada:
-            print("NENHUMA OPERAÇÃO REALIZADA!")
+        print("--RELATÓRIO DE CADASTRO DE LIVROS | EMPRÉSTIMOS E DEVOLUÇÕES DOS ÚLTIMOS 7 DIAS--")
+        livrosCadastrados = [livro for livro in self._listarLivros() if livro.dataCadastro >= datetime.now()- timedelta(days=7)]
+        totalLivrosCadastrados = len(livrosCadastrados)
+        print(f"TOTAL DE LIVROS CADASTRADOS NOS ÚLTIMOS 7 DIAS: {totalLivrosCadastrados}")
+        
+        for emprestimo in self.registro:
+            if emprestimo.dataDevReal:
+                print(f"\nEmprestado em: {emprestimo.dataEmp.date().strftime('%d/%m/%Y')} - Devolução feita em: {emprestimo.dataDevReal.date().strftime('%d/%m/%Y')}")
+            else:
+                print(f"\nEmprestado em: {emprestimo.dataEmp.date().strftime('%d/%m/%Y')} - Devolução prevista para: {emprestimo.dataDev.date().strftime('%d/%m/%Y')}")
+   
     def quickSort(self, livros, criterio):
         if len(livros) <= 1:
             return livros
